@@ -902,7 +902,7 @@ function WalletScreen() {
           <EmptyCard>Belum ada hobi. Tambahkan yang berdurasi 10-15 menit.</EmptyCard>
         ) : (
           <ul className="grid grid-cols-2 gap-3">
-            {hob.data!.map((h) => (
+            {hob.data!.map((h: any) => (
               <li
                 key={h.id}
                 className="flex flex-col justify-between rounded-2xl border border-border bg-card p-4 shadow-card"
@@ -934,7 +934,7 @@ function WalletScreen() {
           <EmptyCard>Belum ada transaksi.</EmptyCard>
         ) : (
           <ul className="space-y-2">
-            {bal.data!.transactions.map((t) => (
+            {bal.data!.transactions.map((t: any) => (
               <li
                 key={t.id}
                 className="flex items-center gap-3 rounded-2xl bg-card px-4 py-3 shadow-card"
