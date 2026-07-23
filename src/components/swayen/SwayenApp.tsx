@@ -28,6 +28,7 @@ import { toast } from "sonner";
 import { useSwayenAuth } from "@/lib/swayen-auth";
 import { useTheme } from "@/lib/theme";
 import { api, type Hobby } from "@/lib/swayen-api";
+import { SwayenLogo } from "@/components/swayen/SwayenLogo";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
