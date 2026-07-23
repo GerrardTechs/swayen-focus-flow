@@ -212,8 +212,6 @@ export const api = {
 
   // timebox
   getActiveTimebox: () => apiRequest<TimeBoxSession | null>("/timebox/active"),
-
-  // timebox
   startTimebox: (durationMinutes = 45) =>
     apiRequest<TimeBoxSession>("/timebox/start", { method: "POST", body: { durationMinutes } }),
   startWuxiu: () => apiRequest<TimeBoxSession>("/timebox/wuxiu", { method: "POST", body: {} }),
