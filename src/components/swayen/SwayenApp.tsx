@@ -144,9 +144,7 @@ function AuthScreen() {
   return (
     <div className="flex h-full flex-col justify-between px-6 pb-8 pt-10">
       <div>
-        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary shadow-coin">
-          <Sparkles className="h-7 w-7 text-primary-foreground" />
-        </div>
+        <SwayenLogo className="h-16 w-16 rounded-2xl shadow-coin" />
         <h1 className="mt-6 text-3xl font-black tracking-tight">Swayen</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Manajemen energi harian — bukan sekadar to-do.
