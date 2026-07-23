@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Swayen</string>
+    <string name="title_activity_main">Swayen</string>
+    <string name="package_name">com.swayen.app</string>
+    <string name="custom_url_scheme">com.swayen.app</string>
+</resources>

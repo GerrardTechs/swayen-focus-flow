@@ -160,7 +160,7 @@ function AuthScreen() {
         <SwayenLogo className="h-16 w-16 rounded-2xl shadow-coin" />
         <h1 className="mt-6 text-3xl font-black tracking-tight">Swayen</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Manajemen energi harian — bukan sekadar to-do.
+        Kelola Energi, Kuasai Hari
         </p>
       </div>
 

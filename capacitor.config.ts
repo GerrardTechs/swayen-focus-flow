@@ -4,7 +4,7 @@ import type { CapacitorConfig } from "@capacitor/cli";
 // (Cloudflare Pages/Workers, Vercel, dst). Selama development, bisa diarahkan ke
 // alamat LAN laptop kamu (bukan localhost) supaya kelihatan di emulator/HP fisik,
 // misal: "http://192.168.1.10:3000"
-const PRODUCTION_URL = "https://swayen.example.com"; // TODO: ganti ke URL production asli
+const PRODUCTION_URL = "https://swayen-focus-flows.vercel.app/"; // TODO: ganti ke URL production asli
 
 const config: CapacitorConfig = {
   appId: "com.swayen.app",
