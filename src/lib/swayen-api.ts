@@ -94,7 +94,11 @@ export async function apiRequest<T>(path: string, opts: RequestOpts = {}): Promi
       body: body !== undefined ? JSON.stringify(body) : undefined,
     });
   } catch (e) {
-    throw new ApiError(0, "Tidak bisa terhubung ke server. Pastikan backend berjalan di " + API_BASE);
+    // Beri tahu TypeScript cara membaca error-nya
+    const errorMessage = e instanceof Error ? e.message : String(e);
+    
+    console.error("Penyebab asli gagal fetch:", errorMessage); 
+    throw new ApiError(0, `Gagal terhubung (${errorMessage}). Cek URL: ${API_BASE}${path}`);
   }
 
   if (res.status === 401 && auth && !_retry && tokenStore.refresh) {
