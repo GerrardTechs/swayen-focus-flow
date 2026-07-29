@@ -30,17 +30,24 @@ let permissionRequested = false;
  */
 export async function ensureNotificationPermission(): Promise<boolean> {
   if (!isNativePlatform()) return true; // di web, fallback ke Notification API biasa
-  const LocalNotifications = await getLocalNotifications();
-  if (!permissionRequested) {
-    permissionRequested = true;
-    const current = await LocalNotifications.checkPermissions();
-    if (current.display !== "granted") {
-      const result = await LocalNotifications.requestPermissions();
-      return result.display === "granted";
+  try {
+    const LocalNotifications = await getLocalNotifications();
+    if (!permissionRequested) {
+      permissionRequested = true;
+      const current = await LocalNotifications.checkPermissions();
+      console.log("[swayen-notif] current permission:", current.display);
+      if (current.display !== "granted") {
+        const result = await LocalNotifications.requestPermissions();
+        console.log("[swayen-notif] permission request result:", result.display);
+        return result.display === "granted";
+      }
     }
+    const status = await LocalNotifications.checkPermissions();
+    return status.display === "granted";
+  } catch (err) {
+    console.error("[swayen-notif] ensureNotificationPermission failed:", err);
+    return false;
   }
-  const status = await LocalNotifications.checkPermissions();
-  return status.display === "granted";
 }
 
 /**
@@ -50,22 +57,31 @@ export async function ensureNotificationPermission(): Promise<boolean> {
  */
 export async function scheduleNativeAlarm(id: number, title: string, body: string, firesAt: Date) {
   if (!isNativePlatform()) return;
-  const granted = await ensureNotificationPermission();
-  if (!granted) return;
+  try {
+    const granted = await ensureNotificationPermission();
+    console.log("[swayen-notif] permission granted?", granted);
+    if (!granted) {
+      console.warn("[swayen-notif] scheduleNativeAlarm dibatalkan — permission belum granted");
+      return;
+    }
 
-  const LocalNotifications = await getLocalNotifications();
-  await LocalNotifications.schedule({
-    notifications: [
-      {
-        id,
-        title,
-        body,
-        schedule: { at: firesAt, allowWhileIdle: true },
-        sound: "alarm.wav",
-        channelId: "swayen-alarms",
-      },
-    ],
-  });
+    const LocalNotifications = await getLocalNotifications();
+    await LocalNotifications.schedule({
+      notifications: [
+        {
+          id,
+          title,
+          body,
+          schedule: { at: firesAt, allowWhileIdle: true },
+          sound: "alarm.wav",
+          channelId: "swayen-alarms",
+        },
+      ],
+    });
+    console.log(`[swayen-notif] alarm id=${id} scheduled for`, firesAt.toISOString());
+  } catch (err) {
+    console.error(`[swayen-notif] scheduleNativeAlarm(id=${id}) FAILED:`, err);
+  }
 }
 
 /** Batalkan alarm terjadwal — dipanggil kalau user selesai/stop sesi lebih cepat dari durasi asli. */
@@ -88,13 +104,18 @@ export const ALARM_IDS = {
  */
 export async function setupAlarmChannel() {
   if (!isNativePlatform()) return;
-  const LocalNotifications = await getLocalNotifications();
-  await LocalNotifications.createChannel({
-    id: "swayen-alarms",
-    name: "Swayen Alarms",
-    description: "Alarm TimeBox & Wuxiu Nap",
-    importance: 5, // IMPORTANCE_HIGH — muncul sebagai heads-up notification + bunyi
-    sound: "alarm.wav",
-    vibration: true,
-  });
+  try {
+    const LocalNotifications = await getLocalNotifications();
+    await LocalNotifications.createChannel({
+      id: "swayen-alarms",
+      name: "Swayen Alarms",
+      description: "Alarm TimeBox & Wuxiu Nap",
+      importance: 5, // IMPORTANCE_HIGH — muncul sebagai heads-up notification + bunyi
+      sound: "alarm.wav",
+      vibration: true,
+    });
+    console.log("[swayen-notif] channel created OK");
+  } catch (err) {
+    console.error("[swayen-notif] setupAlarmChannel FAILED:", err);
+  }
 }
