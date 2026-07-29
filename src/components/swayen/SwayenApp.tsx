@@ -102,7 +102,7 @@ function PhoneFrame({ children }: { children: React.ReactNode }) {
   // full HP-nya, gak butuh border/status bar palsu lagi. Jadi native platform langsung
   // render children full-screen tanpa frame ini sama sekali.
   if (isNativePlatform()) {
-    return <div className="min-h-screen bg-background">{children}</div>;
+    return <div className="relative h-screen w-full overflow-hidden bg-background">{children}</div>;
   }
 
   return (
