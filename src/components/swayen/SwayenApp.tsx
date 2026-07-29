@@ -23,6 +23,7 @@ import {
   ArrowUpRight,
   ArrowDownRight,
   Loader2,
+  Link,
 } from "lucide-react";
 import { toast } from "sonner";
 import { isNativePlatform } from "@/lib/native-notifications";
@@ -231,8 +232,18 @@ function AuthScreen() {
           )}
         </Button>
         <p className="pt-2 text-center text-xs text-muted-foreground">
-          Backend: <code className="rounded bg-muted px-1">localhost:4000</code>
-        </p>
+  Author:{" "}
+  <a 
+    href="https://gerrardtechs.github.io/Alessandro-Portfolio/" 
+    target="_blank" 
+    rel="noopener noreferrer"
+    className="hover:text-foreground hover:underline"
+  >
+    <code className="rounded bg-muted px-1 cursor-pointer">
+      Alessandro Farrel
+    </code>
+  </a>
+</p>
       </form>
     </div>
   );
