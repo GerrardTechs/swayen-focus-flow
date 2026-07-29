@@ -10,6 +10,17 @@
 // app (running/minimized/killed sekalipun, selama device gak di-reboot tanpa reschedule).
 
 import { Capacitor } from "@capacitor/core";
+import { toast } from "sonner";
+
+// DEBUG_TOAST: dipakai sementara buat debugging alarm native — console.log kadang ke-strip
+// pas production build, toast ini gak mungkin ke-strip karena itu runtime behavior beneran.
+// Set ke false / hapus semua pemanggilannya kalau debugging udah kelar.
+const DEBUG_TOAST = true;
+function debugToast(message: string, isError = false) {
+  if (!DEBUG_TOAST) return;
+  if (isError) toast.error(`[DEBUG] ${message}`);
+  else toast.info(`[DEBUG] ${message}`);
+}
 
 // Lazy import supaya file ini tetap aman di-import di web (non-Capacitor) tanpa error module-not-found
 async function getLocalNotifications() {
@@ -29,23 +40,26 @@ let permissionRequested = false;
  * "request permission in context", bukan langsung nembak popup pas onboarding.
  */
 export async function ensureNotificationPermission(): Promise<boolean> {
-  if (!isNativePlatform()) return true; // di web, fallback ke Notification API biasa
+  if (!isNativePlatform()) {
+    debugToast("bukan native platform, skip permission check");
+    return true; // di web, fallback ke Notification API biasa
+  }
   try {
     const LocalNotifications = await getLocalNotifications();
     if (!permissionRequested) {
       permissionRequested = true;
       const current = await LocalNotifications.checkPermissions();
-      console.log("[swayen-notif] current permission:", current.display);
+      debugToast(`current permission: ${current.display}`);
       if (current.display !== "granted") {
         const result = await LocalNotifications.requestPermissions();
-        console.log("[swayen-notif] permission request result:", result.display);
+        debugToast(`permission request result: ${result.display}`);
         return result.display === "granted";
       }
     }
     const status = await LocalNotifications.checkPermissions();
     return status.display === "granted";
   } catch (err) {
-    console.error("[swayen-notif] ensureNotificationPermission failed:", err);
+    debugToast(`ensureNotificationPermission failed: ${String(err)}`, true);
     return false;
   }
 }
@@ -56,12 +70,13 @@ export async function ensureNotificationPermission(): Promise<boolean> {
  * supaya alarm lama otomatis ke-replace kalau user mulai sesi baru dari jenis yang sama.
  */
 export async function scheduleNativeAlarm(id: number, title: string, body: string, firesAt: Date) {
+  debugToast(`scheduleNativeAlarm dipanggil, id=${id}, native=${isNativePlatform()}`);
   if (!isNativePlatform()) return;
   try {
     const granted = await ensureNotificationPermission();
-    console.log("[swayen-notif] permission granted?", granted);
+    debugToast(`permission granted? ${granted}`);
     if (!granted) {
-      console.warn("[swayen-notif] scheduleNativeAlarm dibatalkan — permission belum granted");
+      debugToast("scheduleNativeAlarm dibatalkan — permission belum granted", true);
       return;
     }
 
@@ -78,17 +93,21 @@ export async function scheduleNativeAlarm(id: number, title: string, body: strin
         },
       ],
     });
-    console.log(`[swayen-notif] alarm id=${id} scheduled for`, firesAt.toISOString());
+    debugToast(`alarm id=${id} scheduled for ${firesAt.toLocaleTimeString()}`);
   } catch (err) {
-    console.error(`[swayen-notif] scheduleNativeAlarm(id=${id}) FAILED:`, err);
+    debugToast(`scheduleNativeAlarm(id=${id}) FAILED: ${String(err)}`, true);
   }
 }
 
 /** Batalkan alarm terjadwal — dipanggil kalau user selesai/stop sesi lebih cepat dari durasi asli. */
 export async function cancelNativeAlarm(id: number) {
   if (!isNativePlatform()) return;
-  const LocalNotifications = await getLocalNotifications();
-  await LocalNotifications.cancel({ notifications: [{ id }] });
+  try {
+    const LocalNotifications = await getLocalNotifications();
+    await LocalNotifications.cancel({ notifications: [{ id }] });
+  } catch (err) {
+    debugToast(`cancelNativeAlarm(id=${id}) FAILED: ${String(err)}`, true);
+  }
 }
 
 // ID tetap per jenis alarm supaya gampang di-cancel/replace. Kalau nanti nambah jenis sesi baru,
@@ -103,6 +122,7 @@ export const ALARM_IDS = {
  * & prioritas "urgent" kepakai). Dipanggil sekali di root app saat mount.
  */
 export async function setupAlarmChannel() {
+  debugToast(`setupAlarmChannel dipanggil, native=${isNativePlatform()}`);
   if (!isNativePlatform()) return;
   try {
     const LocalNotifications = await getLocalNotifications();
@@ -114,8 +134,8 @@ export async function setupAlarmChannel() {
       sound: "alarm.wav",
       vibration: true,
     });
-    console.log("[swayen-notif] channel created OK");
+    debugToast("channel created OK");
   } catch (err) {
-    console.error("[swayen-notif] setupAlarmChannel FAILED:", err);
+    debugToast(`setupAlarmChannel FAILED: ${String(err)}`, true);
   }
 }

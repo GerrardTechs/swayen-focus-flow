@@ -25,6 +25,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { toast } from "sonner";
+import { isNativePlatform } from "@/lib/native-notifications";
 import { useSwayenAuth } from "@/lib/swayen-auth";
 import { useTheme } from "@/lib/theme";
 import { api, type Hobby } from "@/lib/swayen-api";
@@ -96,6 +97,14 @@ export function SwayenApp() {
 
 /* ---------------- Phone Frame ---------------- */
 function PhoneFrame({ children }: { children: React.ReactNode }) {
+  // Frame ini cuma buat preview "app di dalam bingkai HP" pas dibuka di browser desktop/web.
+  // Di native app (APK Android/iOS) ini bikin efek "HP di dalam HP" — layar beneran udah
+  // full HP-nya, gak butuh border/status bar palsu lagi. Jadi native platform langsung
+  // render children full-screen tanpa frame ini sama sekali.
+  if (isNativePlatform()) {
+    return <div className="min-h-screen bg-background">{children}</div>;
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-muted/60 via-background to-muted/40 px-2 py-4 sm:px-6 sm:py-8">
       <div className="mx-auto flex w-full max-w-[420px] flex-col">
