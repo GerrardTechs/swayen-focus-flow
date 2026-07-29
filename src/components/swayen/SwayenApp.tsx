@@ -23,7 +23,6 @@ import {
   ArrowUpRight,
   ArrowDownRight,
   Loader2,
-  Link,
 } from "lucide-react";
 import { toast } from "sonner";
 import { isNativePlatform } from "@/lib/native-notifications";
