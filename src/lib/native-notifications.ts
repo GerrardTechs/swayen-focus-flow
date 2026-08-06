@@ -8,8 +8,14 @@
 // Local Notifications beda: kita kasih tau OS "tolong munculin notifikasi jam segini" (`at: Date`)
 // pas sesi DIMULAI, terus OS Android sendiri yang jadwalin & munculin—independen dari status
 // app (running/minimized/killed sekalipun, selama device gak di-reboot tanpa reschedule).
+//
+// PENTING: pakai STATIC import (bukan dynamic `await import()`) — dynamic import bikin Vite
+// code-split plugin ini ke chunk file terpisah, yang rawan kena masalah "stale chunk" (nama
+// file berubah abis redeploy, referensi lama di WebView jadi nyangkut/gagal fetch tanpa error
+// jelas). Static import langsung ke-bundle di file utama, gak ada titik gagal tambahan itu.
 
 import { Capacitor } from "@capacitor/core";
+import { LocalNotifications } from "@capacitor/local-notifications";
 import { toast } from "sonner";
 
 // DEBUG_TOAST: dipakai sementara buat debugging alarm native — console.log kadang ke-strip
@@ -20,12 +26,6 @@ function debugToast(message: string, isError = false) {
   if (!DEBUG_TOAST) return;
   if (isError) toast.error(`[DEBUG] ${message}`);
   else toast.info(`[DEBUG] ${message}`);
-}
-
-// Lazy import supaya file ini tetap aman di-import di web (non-Capacitor) tanpa error module-not-found
-async function getLocalNotifications() {
-  const mod = await import("@capacitor/local-notifications");
-  return mod.LocalNotifications;
 }
 
 export function isNativePlatform(): boolean {
@@ -45,7 +45,6 @@ export async function ensureNotificationPermission(): Promise<boolean> {
     return true; // di web, fallback ke Notification API biasa
   }
   try {
-    const LocalNotifications = await getLocalNotifications();
     if (!permissionRequested) {
       permissionRequested = true;
       const current = await LocalNotifications.checkPermissions();
@@ -80,7 +79,6 @@ export async function scheduleNativeAlarm(id: number, title: string, body: strin
       return;
     }
 
-    const LocalNotifications = await getLocalNotifications();
     await LocalNotifications.schedule({
       notifications: [
         {
@@ -103,7 +101,6 @@ export async function scheduleNativeAlarm(id: number, title: string, body: strin
 export async function cancelNativeAlarm(id: number) {
   if (!isNativePlatform()) return;
   try {
-    const LocalNotifications = await getLocalNotifications();
     await LocalNotifications.cancel({ notifications: [{ id }] });
   } catch (err) {
     debugToast(`cancelNativeAlarm(id=${id}) FAILED: ${String(err)}`, true);
@@ -125,7 +122,6 @@ export async function setupAlarmChannel() {
   debugToast(`setupAlarmChannel dipanggil, native=${isNativePlatform()}`);
   if (!isNativePlatform()) return;
   try {
-    const LocalNotifications = await getLocalNotifications();
     await LocalNotifications.createChannel({
       id: "swayen-alarms",
       name: "Swayen Alarms",

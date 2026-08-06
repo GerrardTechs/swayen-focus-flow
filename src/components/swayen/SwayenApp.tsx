@@ -231,18 +231,8 @@ function AuthScreen() {
           )}
         </Button>
         <p className="pt-2 text-center text-xs text-muted-foreground">
-  Author:{" "}
-  <a 
-    href="https://gerrardtechs.github.io/Alessandro-Portfolio/" 
-    target="_blank" 
-    rel="noopener noreferrer"
-    className="hover:text-foreground hover:underline"
-  >
-    <code className="rounded bg-muted px-1 cursor-pointer">
-      Alessandro Farrel
-    </code>
-  </a>
-</p>
+          Backend: <code className="rounded bg-muted px-1">localhost:4000</code>
+        </p>
       </form>
     </div>
   );
