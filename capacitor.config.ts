@@ -16,7 +16,10 @@ const config: CapacitorConfig = {
   },
   plugins: {
     LocalNotifications: {
-      smallIcon: "ic_stat_swayen",
+      // TODO: idealnya bikin icon monochrome khusus status-bar (ic_stat_swayen) via
+      // Android Studio Image Asset Studio. Sementara pakai ic_launcher yang udah pasti
+      // ada (biar notifikasi ke-render, meski tampilannya bukan versi silhouette resmi).
+      smallIcon: "ic_launcher",
       iconColor: "#09090b",
       sound: "alarm.wav",
     },
